@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Disposable;
+import com.me.mygdxgame.lights.Shapes;
 
 public class TextureRenderer extends Renderer implements Disposable {
 
@@ -26,7 +27,7 @@ public class TextureRenderer extends Renderer implements Disposable {
       frameBuffer = new FrameBuffer(Format.RGBA8888, width, height, true);
       texture = frameBuffer.getColorBufferTexture();
       texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-      quad = PrimitivesFactory.makeQuad(inverted);
+      quad = Shapes.makeQuad(inverted);
    }
 
    @Override

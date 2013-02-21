@@ -7,6 +7,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -19,6 +20,8 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Plane;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
+import com.me.mygdxgame.lights.LightManager;
+import com.me.mygdxgame.lights.LightManager.LightQuality;
 
 public class MashupMain extends SimpleGame {
 	
@@ -38,7 +41,7 @@ public class MashupMain extends SimpleGame {
 	public float radiusA = 13f;
 	public float radiusB = 13f;
 	
-	private Vector3 cameraPosition = lightCenter;
+	private Vector3 cameraPosition = new Vector3(25f, 7f, 25f);
 	private float lightPosition = 0;
 
 	private DungeonLevel dlevel;
@@ -58,6 +61,8 @@ public class MashupMain extends SimpleGame {
 	final Vector3 last = new Vector3(-1, -1, -1);
 	final Vector3 delta = new Vector3();
 	Cube lastSelectedTile = null;
+	
+	LightManager lightManager;
 
 	public static void main(String[] args) {
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
@@ -92,6 +97,11 @@ public class MashupMain extends SimpleGame {
 		Mesh sphereMesh = smodel.getSubMeshes()[0].getMesh();
 		Mesh cubeMesh = cmodel.getSubMeshes()[0].getMesh();
 		
+		
+//		lightManager = new LightManager(1, LightQuality.FORWARD_VERTEX);
+//		lightManager.setAmbient(new Color(0.3f,0.4f,0.3f,1f), new Vector3(0, 1, 0));
+//		lightManager.fixReferences();
+
 
 		circlingLight = new GeometricObject(defaultShader, sphereMesh, GL20.GL_TRIANGLES);
 		circlingLight.setUseLighting(false);
