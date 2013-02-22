@@ -5,3 +5,5 @@ Note about the eclipse project, you will need to patch up the classpath sources 
 You will need to point them to your local libgdx projects.
 
 About the controls, you can use WASD as well as mouse clicks and drags to pan around.  Use the 1 key to reset a view.
+
+![screenshot of the example](https://github.com/pantinor/warpstone-libgdx-mashup/raw/master/warpstone-libgdx.png)
