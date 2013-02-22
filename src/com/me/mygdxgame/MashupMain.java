@@ -7,21 +7,26 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g3d.loaders.ModelLoaderRegistry;
+import com.badlogic.gdx.graphics.Pixmap.Format;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.loaders.wavefront.ObjLoader;
 import com.badlogic.gdx.graphics.g3d.model.still.StillModel;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Plane;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.me.mygdxgame.lights.LightManager;
-import com.me.mygdxgame.lights.LightManager.LightQuality;
 
 public class MashupMain extends SimpleGame {
 	
@@ -29,10 +34,12 @@ public class MashupMain extends SimpleGame {
 
 	private ShaderProgram defaultShader;
 	private TextureRenderer normalRenderer;
-
-	// private GeometricObject lady;
-	// private Vector3 ladyPosition = new Vector3(1f, 1.05f, 1f);
 	
+	private Skin skin;
+	private SpriteBatch batch;
+	//private ShapeRenderer renderer;
+	private Stage stage;
+
 	private Actor actor;
 
 	private GeometricObject circlingLight;;
@@ -53,6 +60,8 @@ public class MashupMain extends SimpleGame {
 	public static Texture ROCK_TEXTURE;
 	public static Texture GRASS_TEXTURE;
 	public static Texture DIRT_TEXTURE;
+	public static Texture MAP_TEXTURE;
+
 
 	//properties for selecting cube with mouse clicks
 	final Plane xzPlane = new Plane(new Vector3(0, 1, 0), 0);
@@ -84,11 +93,24 @@ public class MashupMain extends SimpleGame {
 
 		ShaderProgram simpleShader = tag(new ShaderProgram(Gdx.files.internal("shaders/simple.vsh").readString(), Gdx.files.internal("shaders/simple.fsh").readString()));
 		normalRenderer = tag(new TextureRenderer(1920, 1080, simpleShader));
+	
+		batch = new SpriteBatch();
+		//renderer = new ShapeRenderer();
+		skin = new Skin(Gdx.files.internal("data/uiskin.json"));
+		skin.getAtlas().getTextures().iterator().next().setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
+		stage = new Stage(0, 0, false);
+		
+		
+		Table table = new Table();
+		stage.addActor(table);
+		table.setPosition(200, 65);
+
+		table.add(new Label("This is regular text.", skin));
+		table.pack();
+
 
 		FileHandle cstream = Gdx.files.internal("meshes/cube.obj");
 		FileHandle sstream = Gdx.files.internal("meshes/sphere.obj");
-
-		// StillModel ladyModel = ModelLoaderRegistry.loadStillModel(Gdx.files.internal("data/female-01-casual-clothing.obj"));
 
 		ObjLoader loader = new ObjLoader();
 		StillModel cmodel = loader.loadObj(cstream, true);
@@ -109,6 +131,8 @@ public class MashupMain extends SimpleGame {
 		ROCK_TEXTURE = tag(new Texture(Gdx.files.internal("data/rock.png"), true));
 		GRASS_TEXTURE = tag(new Texture(Gdx.files.internal("data/grass.png"), true));
 		DIRT_TEXTURE = tag(new Texture(Gdx.files.internal("data/dirt.png"), true));
+		MAP_TEXTURE = tag(new Texture(Gdx.files.internal("data/map.png"), true));
+
 
 		dlevel = new DungeonLevel(0, 0, MAP_WIDTH, MAP_HEIGHT, MAP_CEILING);
 		dlevel.initCubes(defaultShader, cubeMesh);
@@ -117,6 +141,12 @@ public class MashupMain extends SimpleGame {
 		actor.setScale(new Vector3(0.2f, 0.2f, 0.2f));
 		actor.setPos(new Vector3(dlevel.dmap.getStartX(), 1f, dlevel.dmap.getStartY()));
 
+	}
+	
+	@Override
+	public void resize(int width, int height) {
+		super.resize(width, height);
+		stage.setViewport(width, height, false);
 	}
 
 	@Override
@@ -170,11 +200,18 @@ public class MashupMain extends SimpleGame {
 		circlingLight.render();
 
 		actor.render();
+		
+
+		drawMiniMap();
 
 		defaultShader.end();
 		normalRenderer.endAndRender();
 
 		checkTileTouched();
+		
+
+		
+
 
 	}
 
@@ -200,16 +237,6 @@ public class MashupMain extends SimpleGame {
 		return false;
 	}
 
-//	@Override
-//	public boolean scrolled(int amount) {
-//		if (camera instanceof OrthographicCamera) {
-//			OrthographicCamera ocam = (OrthographicCamera) camera;
-//			ocam.zoom += amount * 0.2f; 
-//		}
-//		return false;
-//	}
-
-
 	private void checkTileTouched() {
 		if (Gdx.input.justTouched()) {
 			
@@ -231,11 +258,11 @@ public class MashupMain extends SimpleGame {
 					NavPath path = dlevel.getPath(actor.getPos().x, actor.getPos().z, x, z);
 					if (path == null) {
 						x += 0.5f;
-						path = dlevel.getPath(actor.getPos().x, actor.getPos().z, x, z);
+						//path = dlevel.getPath(actor.getPos().x, actor.getPos().z, x, z);
 					}
 					if (path == null) {
 						x -= 1f;
-						path = dlevel.getPath(actor.getPos().x, actor.getPos().z, x, z);
+						//path = dlevel.getPath(actor.getPos().x, actor.getPos().z, x, z);
 					}
 					
 					if (path != null) actor.setCurrentPath(path);
@@ -276,5 +303,36 @@ public class MashupMain extends SimpleGame {
 		last.set(-1, -1, -1);
 		return false;
 	}
+	
+	
+	
+	public void drawMiniMap() {
+				
+		Pixmap pixmap = new Pixmap(MAP_TEXTURE.getWidth(), MAP_TEXTURE.getHeight(), Format.RGBA8888);
+		pixmap.setColor(0.3f, 0.3f, 0.3f, 0.7f);
+		double[][] heights = dlevel.dmap.getHeightValues();
+		for (int x = 0; x < dlevel.getWidthInTiles(); x++) {
+			for (int y = 0; y < dlevel.getHeightInTiles(); y++) {
+				if (heights[x][y] > 0) {
+					pixmap.fillRectangle(8 + (x * 3), 8 + (y * 3), 3, 3);
+				}
+			}
+		}
+		pixmap.setColor(1f, 0f, 0f, 0.7f);
+		pixmap.fillRectangle(8 + ((int)actor.getPos().x * 3), 8 + ((int)actor.getPos().z * 3), 3, 3);
+		
+		Texture texture = new Texture(pixmap);
+		pixmap.dispose();
+		
+		//stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+		//stage.draw();
+		
+		batch.begin();
+		batch.draw(MAP_TEXTURE, 16, 10, 16, 16, MAP_TEXTURE.getWidth(), MAP_TEXTURE.getHeight(), 1, 1, 0, 0, 0, MAP_TEXTURE.getWidth(), MAP_TEXTURE.getHeight(), false, false);
+		batch.draw(texture, 16, 10, 16, 16, MAP_TEXTURE.getWidth(), MAP_TEXTURE.getHeight(), 1, 1, 0, 0, 0, MAP_TEXTURE.getWidth(), MAP_TEXTURE.getHeight(), false, false);
+		batch.end();
+	}
+	
+
 
 }

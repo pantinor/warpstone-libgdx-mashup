@@ -22,7 +22,7 @@ public class Actor extends GeometricObject {
 	private float tz;
 
 	// moving speed specified here
-	private static final float SPEED = 0.02f;
+	private static final float SPEED = 0.05f;
 
 	public Actor(String name, ShaderProgram shader, Mesh mesh, int type, DungeonLevel map) {
 		super(shader, mesh, type, null);
