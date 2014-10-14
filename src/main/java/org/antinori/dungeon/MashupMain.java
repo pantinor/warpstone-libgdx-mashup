@@ -76,7 +76,6 @@ public class MashupMain extends SimpleGame {
 	public static void main(String[] args) {
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 		cfg.title = "my-gdx-game";
-		cfg.useGL20 = true;
 		cfg.width = 1280;
 		cfg.height = 768;
 		new LwjglApplication(new MashupMain(), cfg);
@@ -95,7 +94,7 @@ public class MashupMain extends SimpleGame {
 		
 		batch = new SpriteBatch();
 		
-		stage = new Stage(0, 0, false);
+		stage = new Stage();
 
 
 		FileHandle cstream = Gdx.files.classpath("meshes/cube.obj");
@@ -140,7 +139,9 @@ public class MashupMain extends SimpleGame {
 	@Override
 	public void resize(int width, int height) {
 		super.resize(width, height);
-		stage.setViewport(width, height, false);
+		//stage.getViewport().setScreenHeight(height);
+		//stage.getViewport().setScreenWidth(width);
+
 	}
 
 	@Override
