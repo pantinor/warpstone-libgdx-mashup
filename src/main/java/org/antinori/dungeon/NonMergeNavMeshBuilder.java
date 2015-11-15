@@ -8,44 +8,44 @@ import org.newdawn.slick.util.pathfinding.navmesh.Space;
 
 /**
  * Skips merging spaces routine in the base class so links make more sense.
- * 
+ *
  * @author Paul
  *
  */
 public class NonMergeNavMeshBuilder extends NavMeshBuilder {
 
-	@Override
-	public NavMesh build(TileBasedMap map, boolean tileBased) {
+    @Override
+    public NavMesh build(TileBasedMap map, boolean tileBased) {
 
-		ArrayList spaces = new ArrayList();
+        ArrayList spaces = new ArrayList();
 
-		for (int x = 0; x < map.getWidthInTiles(); x++) {
-			for (int y = 0; y < map.getHeightInTiles(); y++) {
-				if (!map.blocked(this, x, y)) {
-					spaces.add(new Space(x, y, 1, 1));
-				}
-			}
-		}
+        for (int x = 0; x < map.getWidthInTiles(); x++) {
+            for (int y = 0; y < map.getHeightInTiles(); y++) {
+                if (!map.blocked(this, x, y)) {
+                    spaces.add(new Space(x, y, 1, 1));
+                }
+            }
+        }
 
-		linkSpaces(spaces);
+        linkSpaces(spaces);
 
-		return new NavMesh(spaces);
-	}
+        return new NavMesh(spaces);
+    }
 
-	//this is private in base class :(
-	void linkSpaces(ArrayList spaces) {
-		for (int source = 0; source < spaces.size(); source++) {
-			Space a = (Space) spaces.get(source);
+    //this is private in base class :(
+    void linkSpaces(ArrayList spaces) {
+        for (int source = 0; source < spaces.size(); source++) {
+            Space a = (Space) spaces.get(source);
 
-			for (int target = source + 1; target < spaces.size(); target++) {
-				Space b = (Space) spaces.get(target);
+            for (int target = source + 1; target < spaces.size(); target++) {
+                Space b = (Space) spaces.get(target);
 
-				if (a.hasJoinedEdge(b)) {
-					a.link(b);
-					b.link(a);
-				}
-			}
-		}
-	}
+                if (a.hasJoinedEdge(b)) {
+                    a.link(b);
+                    b.link(a);
+                }
+            }
+        }
+    }
 
 }
