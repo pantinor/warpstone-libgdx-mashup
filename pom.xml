@@ -6,6 +6,11 @@
     <groupId>warpstone-libgdx-mashup</groupId>
     <artifactId>mashup</artifactId>
     <version>1.0.1</version>
+    
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
 
     <repositories>
         <repository>
@@ -75,23 +80,23 @@
         <dependency>
             <groupId>com.badlogicgames.gdx</groupId>
             <artifactId>gdx</artifactId>
-            <version>1.7.1</version>
+            <version>1.9.8</version>
         </dependency>
         <dependency>
             <groupId>com.badlogicgames.gdx</groupId>
             <artifactId>gdx-backend-lwjgl</artifactId>
-            <version>1.7.1</version>
+            <version>1.9.8</version>
         </dependency>
         <dependency>
             <groupId>com.badlogicgames.gdx</groupId>
             <artifactId>gdx-platform</artifactId>
-            <version>1.7.1</version>
+            <version>1.9.8</version>
             <classifier>natives-desktop</classifier>
         </dependency>
         <dependency>
             <groupId>com.badlogicgames.gdx</groupId>
             <artifactId>gdx-tools</artifactId>
-            <version>1.7.1</version>
+            <version>1.9.8</version>
         </dependency>
     </dependencies>
 

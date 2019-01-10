@@ -155,9 +155,10 @@ public class DungeonMapGenerator implements MapGenerator {
      *
      * @param minRooms The minimum number of rooms to accept in a generation
      * @param mergeIterations How many times we'll try to merge rooms together
+     * @param corridorCount
      */
     public void generate(int minRooms, int mergeIterations, int corridorCount) {
-		// create a random number generate
+        // create a random number generate
         // that we'll use for everything so we can
         // always generate the exact same map again
         Random random = new Random();
@@ -171,7 +172,7 @@ public class DungeonMapGenerator implements MapGenerator {
             totalRooms = 0;
             int failCount = 0;
 
-			// keep placing random sized rooms and random locations until we've
+            // keep placing random sized rooms and random locations until we've
             // generated enough or we've failed too many times.
             while ((failCount < ALLOWED_PLACEMENT_FAILS) && (highestRoomID < roomCount - 1)) {
                 // random size and position
@@ -194,7 +195,7 @@ public class DungeonMapGenerator implements MapGenerator {
                 int roomX = 1 + random.nextInt((width - roomWidth) - 2);
                 int roomY = 2 + random.nextInt((height - roomHeight) - 3);
 
-				// ensure that rooms at only position in even tiles, this is
+                // ensure that rooms at only position in even tiles, this is
                 // to line rooms up better and give more chance for doors
                 int alignment = 2;
                 roomX = (roomX / alignment) * alignment;
@@ -202,7 +203,7 @@ public class DungeonMapGenerator implements MapGenerator {
                 roomWidth = (roomWidth / alignment) * alignment;
                 roomHeight = (roomHeight / alignment) * alignment;
 
-				// Check there isn't already a room placed at the specified
+                // Check there isn't already a room placed at the specified
                 // size and location.
                 boolean clear = true;
                 for (int x = roomX; x < roomX + roomWidth; x++) {
@@ -213,7 +214,7 @@ public class DungeonMapGenerator implements MapGenerator {
                         }
                     }
                 }
-				// if it's a corridor then check a bit further a field for
+                // if it's a corridor then check a bit further a field for
                 // corridors, don't want them too close together
                 if (isCorridor) {
                     for (int x = roomX - 1; x < roomX + roomWidth + 1; x++) {
@@ -230,7 +231,7 @@ public class DungeonMapGenerator implements MapGenerator {
                 }
 
                 if (clear) {
-					// if there isn't a room at the given location, create a new
+                    // if there isn't a room at the given location, create a new
                     // one
                     // and fill the map in for it's ID. Store the room away.
                     highestRoomID++;
@@ -248,7 +249,7 @@ public class DungeonMapGenerator implements MapGenerator {
                 rooms[i + 1].placeDoors(this, random);
             }
 
-			// prune islands - this is important since we want to be
+            // prune islands - this is important since we want to be
             // able to explore the dungeon fully starting in any room - this
             // means that all rooms must be linked together some how. So, we
             // go through each room "filling" is with a new ID, this causes any
@@ -274,7 +275,7 @@ public class DungeonMapGenerator implements MapGenerator {
                 }
             }
 
-			// remove any rooms that don't form part of the biggest
+            // remove any rooms that don't form part of the biggest
             // island, leaving us with one big dungeon area to explore
             Room lastRoom = null;
             for (int i = 0; i < highestRoomID; i++) {
@@ -288,7 +289,7 @@ public class DungeonMapGenerator implements MapGenerator {
                 }
             }
 
-			// prune unused doors by flood filling to find
+            // prune unused doors by flood filling to find
             // the doors that don't need to be there
             for (int i = 0; i < highestRoomID; i++) {
                 Room room = rooms[i + 1];
@@ -333,7 +334,7 @@ public class DungeonMapGenerator implements MapGenerator {
                 }
             }
 
-			// try to merge rooms together into interesting
+            // try to merge rooms together into interesting
             // shapes
             for (int i = 0; i < mergeIterations; i++) {
                 Room target = rooms[random.nextInt(highestRoomID)];
@@ -417,22 +418,49 @@ public class DungeonMapGenerator implements MapGenerator {
         return false;
     }
 
+    private static int getFloorId() {
+        return 206;
+        //return getRandomBetween(206, 209);
+    }
+
+    private static int getWallId() {
+        return getRandomBetween(262, 264);
+    }
+
+    static Random rand = new Random();
+
+    private static int getRandomBetween(int low, int high) {
+        return rand.nextInt(high - low) + low;
+    }
+
     public static void main(String[] args) {
 
-        int w = 32;
-        int h = 32;
+        int w = 60;
+        int h = 60;
         int dim = 10;
 
         DungeonMapGenerator map = new DungeonMapGenerator(w, h);
 
-        map.generate(2, 0, 0);
+        map.generate(8, 0, 2);
+
+        StringBuilder floor = new StringBuilder();
+        StringBuilder walls = new StringBuilder();
 
         BufferedImage img = new BufferedImage(w * dim, h * dim, BufferedImage.TYPE_INT_RGB);
         int[] pixels = new int[(w * dim) * (h * dim)];
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
+
+        for (int x = h - 1; x >= 0; x--) {
+            for (int y = 0; y < h; y++) {
 
                 double ht = map.getTileHeight(x, y);
+
+                if (ht == 0) {
+                    walls.append("0").append(",");
+                    floor.append(getFloorId()).append(",");
+                } else if (ht > 0) {
+                    walls.append(getWallId()).append(",");
+                    floor.append("0").append(",");
+                }
 
                 for (int j = y * dim; j < (y + 1) * dim; j++) {
                     for (int k = x * dim; k < (x + 1) * dim; k++) {
@@ -444,13 +472,25 @@ public class DungeonMapGenerator implements MapGenerator {
                         }
                     }
                 }
-
             }
+
+            walls.append("\n");
+            floor.append("\n");
+
         }
+
+        walls.deleteCharAt(walls.length() - 2);
+        floor.deleteCharAt(floor.length() - 2);
 
         img.setRGB(0, 0, w * dim, h * dim, pixels, 0, w * dim);
 
         JOptionPane.showMessageDialog(null, null, "Map", JOptionPane.YES_NO_OPTION, new ImageIcon(img));
+
+        System.out.println(walls);
+
+        System.out.println("###");
+
+        System.out.println(floor);
 
     }
 
