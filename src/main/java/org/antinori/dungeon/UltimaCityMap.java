@@ -176,11 +176,6 @@ public class UltimaCityMap implements ApplicationListener, InputProcessor {
     }
 
     @Override
-    public boolean scrolled(int amount) {
-        return false;
-    }
-
-    @Override
     public boolean mouseMoved(int i, int i1) {
         return false;
     }
@@ -257,6 +252,11 @@ public class UltimaCityMap implements ApplicationListener, InputProcessor {
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public boolean scrolled(float f, float f1) {
+        return false;
     }
 
     public class Box {

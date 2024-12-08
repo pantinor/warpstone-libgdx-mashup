@@ -306,4 +306,9 @@ public class MashupMain extends SimpleGame {
         batch.end();
     }
 
+    @Override
+    public boolean scrolled(float f, float f1) {
+        return false;
+    }
+
 }
